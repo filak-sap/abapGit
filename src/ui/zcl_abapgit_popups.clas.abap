@@ -1015,6 +1015,8 @@ CLASS ZCL_ABAPGIT_POPUPS IMPLEMENTATION.
           lt_e071k TYPE STANDARD TABLE OF e071k.
 
     CALL FUNCTION 'TRINT_ORDER_CHOICE'
+      EXPORTING
+        wi_task_type           = 'R'
       IMPORTING
         we_order               = rv_transport
       TABLES
