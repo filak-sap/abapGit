@@ -550,7 +550,8 @@ CLASS zcl_abapgit_objects_program IMPLEMENTATION.
         unknown_version = 2
         OTHERS          = 3.
     IF sy-subrc > 1.
-      zcx_abapgit_exception=>raise( |error from RS_CUA_INTERNAL_FETCH, { sy-subrc }| ).
+      zcx_abapgit_exception=>raise( |error from RS_CUA_INTERNAL_FETCH, subrc: {
+        sy-subrc }, program: { iv_program_name }, language: { mv_language }| ).
     ENDIF.
 
   ENDMETHOD.
