@@ -222,6 +222,7 @@ CLASS ZCL_ABAPGIT_OO_SERIALIZER IMPLEMENTATION.
   METHOD serialize_abap_new.
 
     DATA: lo_source   TYPE REF TO object,
+          lo_settings TYPE REF TO object,
           lo_instance TYPE REF TO object.
 
 * do not call the class/methods statically, as it will
@@ -230,9 +231,19 @@ CLASS ZCL_ABAPGIT_OO_SERIALIZER IMPLEMENTATION.
       RECEIVING
         result = lo_instance.
 
+    CALL METHOD ('CL_OO_CLIF_SOURCE_SETTINGS')=>('CREATE_INSTANCE')
+      EXPORTING
+        signature_enabled = seox_false
+        modification_mode_allowed = seox_false
+        ui_enabled = seox_false
+        generator_mode_enabled = seox_false
+      RECEIVING
+        instance = lo_settings.
+
     CALL METHOD lo_instance->('CREATE_CLIF_SOURCE')
       EXPORTING
         clif_name = is_clskey-clsname
+        settings  = cast if_oo_clif_source_settings( lo_settings )
         version   = 'A'
       RECEIVING
         result    = lo_source.
