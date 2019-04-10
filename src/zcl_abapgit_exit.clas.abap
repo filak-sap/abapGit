@@ -150,4 +150,14 @@ CLASS zcl_abapgit_exit IMPLEMENTATION.
       CATCH cx_sy_ref_is_initial cx_sy_dyn_call_illegal_method ##NO_HANDLER.
     ENDTRY.
   ENDMETHOD.
+
+  METHOD zif_abapgit_exit~force_sequential.
+
+    TRY.
+        rv_sequential = gi_exit->force_sequential( ).
+      CATCH cx_sy_ref_is_initial cx_sy_dyn_call_illegal_method ##NO_HANDLER.
+    ENDTRY.
+
+  ENDMETHOD.
+
 ENDCLASS.
