@@ -53,4 +53,7 @@ INTERFACE zif_abapgit_exit
       VALUE(rt_source) TYPE zif_abapgit_definitions=>ty_string_tt
     RAISING
       zcx_abapgit_exception.
+  METHODS force_sequential
+    RETURNING
+      VALUE(rv_sequential) TYPE abap_bool .
 ENDINTERFACE.
