@@ -1,0 +1,5 @@
+abapMerge:
+ - abapmerge -f src/zabapgit.prog.abap > zabapgit_full.prog.abap
+ - sapcli program create "zabapgit_full" "abapgit" '$abapgit'
+ - sapcli program write -a - zabapgit_full.prog.abap
+ - sapcli program activate zabapgit_full
