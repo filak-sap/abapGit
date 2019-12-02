@@ -256,6 +256,14 @@ CLASS zcl_abapgit_gui IMPLEMENTATION.
           li_page      TYPE REF TO zif_abapgit_gui_renderable,
           lv_state     TYPE i.
 
+    DATA(postdata) = it_postdata.
+    DATA hex  TYPE xstring VALUE 'EFBFBD'.
+    DATA(text) = cl_abap_codepage=>convert_from( hex ).
+
+    LOOP AT postdata ASSIGNING FIELD-SYMBOL(<line>).
+      REPLACE ALL OCCURRENCES OF text IN <line> WITH ` `.
+    ENDLOOP.
+
     TRY.
         " Home must be processed by router if it presents
         IF ( iv_action <> c_action-go_home OR mi_router IS NOT BOUND )
@@ -267,7 +275,7 @@ CLASS zcl_abapgit_gui IMPLEMENTATION.
               iv_action    = iv_action
               iv_prev_page = get_current_page_name( )
               iv_getdata   = iv_getdata
-              it_postdata  = it_postdata
+              it_postdata  = postdata
             IMPORTING
               ei_page      = li_page
               ev_state     = lv_state ).
@@ -279,7 +287,7 @@ CLASS zcl_abapgit_gui IMPLEMENTATION.
               iv_action    = iv_action
               iv_prev_page = get_current_page_name( )
               iv_getdata   = iv_getdata
-              it_postdata  = it_postdata
+              it_postdata  = postdata
             IMPORTING
               ei_page      = li_page
               ev_state     = lv_state ).
