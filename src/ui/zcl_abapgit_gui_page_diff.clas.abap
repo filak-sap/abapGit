@@ -12,6 +12,8 @@ CLASS zcl_abapgit_gui_page_diff DEFINITION
       BEGIN OF ty_file_diff,
         path       TYPE string,
         filename   TYPE string,
+        obj_type   TYPE string,
+        obj_name   TYPE string,
         lstate     TYPE char1,
         rstate     TYPE char1,
         fstate     TYPE char1, " FILE state - Abstraction for shorter ifs
@@ -126,7 +128,7 @@ CLASS zcl_abapgit_gui_page_diff DEFINITION
     METHODS render_patch_head
       IMPORTING
         io_html TYPE REF TO zcl_abapgit_html
-        is_diff TYPE zcl_abapgit_gui_page_diff=>ty_file_diff.
+        is_diff TYPE ty_file_diff.
     METHODS apply_patch_for
       IMPORTING
         iv_filename   TYPE string
@@ -172,7 +174,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_ABAPGIT_GUI_PAGE_DIFF IMPLEMENTATION.
+CLASS zcl_abapgit_gui_page_diff IMPLEMENTATION.
 
 
   METHOD add_filter_sub_menu.
@@ -259,7 +261,7 @@ CLASS ZCL_ABAPGIT_GUI_PAGE_DIFF IMPLEMENTATION.
           lv_patch             TYPE xstring,
           lo_git_add_patch     TYPE REF TO zcl_abapgit_git_add_patch.
 
-    FIELD-SYMBOLS: <ls_diff_file> TYPE zcl_abapgit_gui_page_diff=>ty_file_diff.
+    FIELD-SYMBOLS: <ls_diff_file> TYPE ty_file_diff.
 
     lo_repo ?= zcl_abapgit_repo_srv=>get_instance( )->get( mv_repo_key ).
 
@@ -322,7 +324,6 @@ CLASS ZCL_ABAPGIT_GUI_PAGE_DIFF IMPLEMENTATION.
 
     DATA:
       lv_offs    TYPE i,
-      lv_is_binary TYPE abap_bool,
       ls_r_dummy LIKE LINE OF it_remote ##NEEDED,
       ls_l_dummy LIKE LINE OF it_local  ##NEEDED.
 
@@ -352,6 +353,8 @@ CLASS ZCL_ABAPGIT_GUI_PAGE_DIFF IMPLEMENTATION.
     APPEND INITIAL LINE TO mt_diff_files ASSIGNING <ls_diff>.
     <ls_diff>-path     = is_status-path.
     <ls_diff>-filename = is_status-filename.
+    <ls_diff>-obj_type = is_status-obj_type.
+    <ls_diff>-obj_name = is_status-obj_name.
     <ls_diff>-lstate   = is_status-lstate.
     <ls_diff>-rstate   = is_status-rstate.
 
@@ -737,7 +740,8 @@ CLASS ZCL_ABAPGIT_GUI_PAGE_DIFF IMPLEMENTATION.
 
   METHOD render_diff_head.
 
-    DATA: ls_stats TYPE zif_abapgit_definitions=>ty_count.
+    DATA: ls_stats    TYPE zif_abapgit_definitions=>ty_count,
+          lv_adt_link TYPE string.
 
     CREATE OBJECT ro_html.
 
@@ -755,7 +759,20 @@ CLASS ZCL_ABAPGIT_GUI_PAGE_DIFF IMPLEMENTATION.
       ro_html->add( |<span class="diff_banner diff_upd">~ { ls_stats-update }</span>| ).
     ENDIF.
 
-    ro_html->add( |<span class="diff_name">{ is_diff-path }{ is_diff-filename }</span>| ). "#EC NOTEXT
+    " no links for nonexistent or deleted objects
+    IF is_diff-lstate IS NOT INITIAL AND is_diff-lstate <> 'D'.
+      lv_adt_link = zcl_abapgit_html=>a(
+        iv_txt = |{ is_diff-path }{ is_diff-filename }|
+        iv_typ = zif_abapgit_html=>c_action_type-sapevent
+        iv_act = |jump?TYPE={ is_diff-obj_type }&NAME={ is_diff-obj_name }| ).
+    ENDIF.
+
+    IF lv_adt_link IS NOT INITIAL.
+      ro_html->add( |<span class="diff_name">{ lv_adt_link }</span>| ). "#EC NOTEXT
+    ELSE.
+      ro_html->add( |<span class="diff_name">{ is_diff-path }{ is_diff-filename }</span>| ). "#EC NOTEXT
+    ENDIF.
+
     ro_html->add( zcl_abapgit_gui_chunk_lib=>render_item_state(
       iv_lstate = is_diff-lstate
       iv_rstate = is_diff-rstate ) ).
@@ -964,10 +981,8 @@ CLASS ZCL_ABAPGIT_GUI_PAGE_DIFF IMPLEMENTATION.
         patch TYPE string VALUE `patch` ##NO_TEXT,
       END OF c_css_class.
 
-    DATA: lv_id          TYPE string,
-          lv_left_class  TYPE string,
-          lv_right_class TYPE string,
-          lv_object      TYPE string.
+    DATA: lv_id     TYPE string,
+          lv_object TYPE string.
 
     lv_object = iv_filename.
 

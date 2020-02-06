@@ -166,8 +166,7 @@ CLASS ZCL_ABAPGIT_OBJECT_SSFO IMPLEMENTATION.
                                     CHANGING  cv_within_code_section = cv_within_code_section ).
 
 * for downwards compatibility, this code can be removed sometime in the future
-        lv_leading_spaces = li_element->get_attribute_ns(
-          name = zcl_abapgit_object_ssfo=>attrib_abapgit_leadig_spaces ).
+        lv_leading_spaces = li_element->get_attribute_ns( name = attrib_abapgit_leadig_spaces ).
 
         lv_coding_line = li_element->get_value( ).
         IF strlen( lv_coding_line ) >= 1 AND lv_coding_line(1) <> | |.
@@ -264,11 +263,9 @@ CLASS ZCL_ABAPGIT_OBJECT_SSFO IMPLEMENTATION.
       lv_name = li_node->get_name( ).
       CASE lv_name.
         WHEN 'LASTDATE'.
-          li_node->set_value(
-            sy-datum(4) && '-' && sy-datum+4(2) && '-' && sy-datum+6(2) ).
+          li_node->set_value( sy-datum(4) && '-' && sy-datum+4(2) && '-' && sy-datum+6(2) ).
         WHEN 'LASTTIME'.
-          li_node->set_value(
-            sy-uzeit(2) && ':' && sy-uzeit+2(2) && ':' && sy-uzeit+4(2) ).
+          li_node->set_value( sy-uzeit(2) && ':' && sy-uzeit+2(2) && ':' && sy-uzeit+4(2) ).
         WHEN 'FIRSTUSER' OR 'LASTUSER'.
           li_node->set_value( sy-uname && '' ).
 
